@@ -60,3 +60,47 @@ y_train = np.array(train_data['label'])
 X_test = np.stack(test_data['features'].values)
 y_test = np.array(test_data['label'])
 
+param_dist = {'n_estimators': randint(50,500),
+              'max_depth': randint(1,20)}
+
+
+###                        !IMPORTANT! 
+### The below code runs extremely slow, but it exists to find
+### the best hyperparameters for Random Forests. Not strictly
+### necessary, so if you want default parameters, replace it
+### with the commented out code below
+
+
+# Create a random forest classifier
+rf = RandomForestClassifier()
+
+# Use random search to find the best hyperparameters
+rand_search = RandomizedSearchCV(rf, 
+                                 param_distributions = param_dist, 
+                                 n_iter=5, 
+                                 cv=5)
+
+# Fit the random search object to the data
+rand_search.fit(X_train, y_train)
+print("Best parameters: ", rand_search.best_estimator_.get_params)
+depth, estimators = rand_search.best_estimator_.get_params
+
+model = RandomForestClassifier(n_estimators=estimators, max_depth=depth)
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+acc = accuracy_score(y_test, y_pred)
+print("Accuracy of Random Forest model: ", acc)
+
+
+# Define and fit the model
+"""
+model = RandomForestClassifier()
+model.fit(X_train, y_train)
+
+y_pred = model.predict(X_test)
+
+acc = accuracy_score(y_test, y_pred)
+print("Accuracy of Random Forest model: ", acc)
+"""
